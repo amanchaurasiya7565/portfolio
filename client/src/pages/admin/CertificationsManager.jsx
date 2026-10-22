@@ -30,9 +30,16 @@ export default function CertificationsManager() {
         },
         {
           name: "credentialUrl",
-          label: "Credential URL",
+          label: "Credential Verification Link",
           placeholder: "https://example.com/verify",
           fullWidth: true,
+        },
+        {
+          name: "image",
+          label: "Certificate Image / Badge",
+          type: "image",
+          fullWidth: true,
+          help: "Upload an image of your certificate or credential badge (JPG, PNG, WebP)",
         },
         {
           name: "order",

@@ -7,6 +7,7 @@ export default function ResumeUploader({
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleUpload = async (event) => {
     const file = event.target.files?.[0];
@@ -14,9 +15,10 @@ export default function ResumeUploader({
     if (!file) return;
 
     setError("");
+    setSuccess("");
 
-    if (file.type !== "application/pdf") {
-      setError("Please select a PDF file.");
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setError("Please select a valid PDF file.");
       return;
     }
 
@@ -31,6 +33,7 @@ export default function ResumeUploader({
       const resume = await uploadResume(file);
 
       onChange(resume.url);
+      setSuccess("Resume uploaded and synced successfully!");
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -43,41 +46,66 @@ export default function ResumeUploader({
 
   return (
     <div className="admin-resume-uploader">
-      <label>Resume PDF</label>
+      <label className="admin-field-label">Resume PDF Document</label>
 
       {value && (
         <div className="admin-resume-current">
-          <a
-            href={value}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View Current Resume
-          </a>
+          <div className="resume-current-info">
+            <span className="file-badge">PDF Active</span>
+            <span className="file-url-preview">{value}</span>
+          </div>
+          <div className="resume-test-actions">
+            <a
+              href="/api/resume/view"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="admin-link-button view"
+            >
+              👁️ View Resume
+            </a>
+            <a
+              href="/api/resume/download"
+              className="admin-link-button download"
+            >
+              ⬇️ Download Test
+            </a>
+          </div>
         </div>
       )}
 
-      <label className="admin-upload-button">
-        {uploading
-          ? "Uploading..."
-          : "Choose Resume PDF"}
+      <div className="upload-controls-row">
+        <label className="admin-upload-button">
+          {uploading ? (
+            <>
+              <span className="spinner-small" /> Uploading PDF...
+            </>
+          ) : (
+            <>📄 {value ? "Replace Resume PDF" : "Upload Resume PDF"}</>
+          )}
 
-        <input
-          type="file"
-          accept="application/pdf"
-          onChange={handleUpload}
-          disabled={uploading}
-          hidden
-        />
-      </label>
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={handleUpload}
+            disabled={uploading}
+            hidden
+          />
+        </label>
 
-      <small>
-        PDF only • Maximum 5 MB
-      </small>
+        <small className="admin-upload-hint">
+          PDF format only • Max 5 MB • Automatically stored & viewable inline
+        </small>
+      </div>
+
+      {success && (
+        <span className="admin-upload-success">
+          ✓ {success}
+        </span>
+      )}
 
       {error && (
         <span className="admin-upload-error">
-          {error}
+          ⚠ {error}
         </span>
       )}
     </div>

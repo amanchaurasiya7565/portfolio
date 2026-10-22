@@ -3,10 +3,9 @@ import Sidebar from "../components/admin/Sidebar";
 
 export default function AdminLayout() {
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="admin-root-layout">
       <Sidebar />
-
-      <main className="flex-1 p-8">
+      <main className="admin-main-content">
         <Outlet />
       </main>
     </div>

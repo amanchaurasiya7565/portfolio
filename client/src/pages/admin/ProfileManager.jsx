@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../../services/api";
 import ImageUploader from "../../components/admin/ImageUploader";
 import ResumeUploader from "../../components/admin/resumeUploader";
+
 export default function ProfileManager() {
   const [form, setForm] = useState({
     name: "",
@@ -10,6 +11,7 @@ export default function ProfileManager() {
     location: "",
     email: "",
     phone: "",
+    whatsapp: "",
     github: "",
     linkedin: "",
     profileImage: "",
@@ -32,7 +34,6 @@ export default function ProfileManager() {
       setError("");
 
       const response = await api.get("/profile");
-
       const profile = response.data;
 
       setForm({
@@ -42,6 +43,7 @@ export default function ProfileManager() {
         location: profile.location || "",
         email: profile.email || "",
         phone: profile.phone || "",
+        whatsapp: profile.whatsapp || profile.phone || "",
         github: profile.github || "",
         linkedin: profile.linkedin || "",
         profileImage: profile.profileImage || "",
@@ -49,8 +51,7 @@ export default function ProfileManager() {
       });
     } catch (err) {
       setError(
-        err.response?.data?.message ||
-          "Failed to load profile."
+        err.response?.data?.message || "Failed to load profile."
       );
     } finally {
       setLoading(false);
@@ -59,17 +60,9 @@ export default function ProfileManager() {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-
     setForm((current) => ({
       ...current,
       [name]: value,
-    }));
-  };
-
-  const handleImageChange = (url) => {
-    setForm((current) => ({
-      ...current,
-      profileImage: url,
     }));
   };
 
@@ -84,12 +77,10 @@ export default function ProfileManager() {
       await api.put("/profile", form);
 
       setSuccess("Profile updated successfully.");
-
       await loadProfile();
     } catch (err) {
       setError(
-        err.response?.data?.message ||
-          "Failed to update profile."
+        err.response?.data?.message || "Failed to update profile."
       );
     } finally {
       setSaving(false);
@@ -98,64 +89,46 @@ export default function ProfileManager() {
 
   if (loading) {
     return (
-      <div className="admin-auth-loading">
-        <div className="admin-spinner" />
+      <div className="admin-page-state">
+        <div className="spinner" />
         <p>Loading profile...</p>
       </div>
     );
   }
 
   return (
-    <div className="admin-crud-page">
+    <div className="admin-profile-manager">
       <div className="admin-page-header">
         <div>
-          <p className="admin-eyebrow">
-            Content Management
-          </p>
-
-          <h1>Profile</h1>
-
+          <p className="admin-eyebrow">Personal Information</p>
+          <h1>Profile Settings</h1>
           <p>
-            Manage the information displayed in your
-            portfolio hero and about section.
+            Manage your personal bio, headline, contact channels, avatar, and resume.
           </p>
         </div>
       </div>
 
       {error && (
         <div className="admin-alert admin-alert-error">
-          {error}
+          <span className="alert-icon">⚠</span>
+          <span>{error}</span>
         </div>
       )}
 
       {success && (
         <div className="admin-alert admin-alert-success">
-          {success}
+          <span className="alert-icon">✓</span>
+          <span>{success}</span>
         </div>
       )}
 
-      <section className="admin-panel profile-admin-panel">
-        <div className="admin-panel-header">
-          <div>
-            <h2>Personal Information</h2>
-
-            <p>
-              Update your public portfolio information.
-            </p>
-          </div>
-        </div>
-
-        <form
-          className="admin-form"
-          onSubmit={handleSubmit}
-        >
-          {/* Name */}
-
+      <section className="admin-card">
+        <form className="admin-form" onSubmit={handleSubmit}>
+          {/* Full Name */}
           <div className="admin-form-group">
             <label htmlFor="name">
               Full Name <span>*</span>
             </label>
-
             <input
               id="name"
               name="name"
@@ -168,30 +141,24 @@ export default function ProfileManager() {
           </div>
 
           {/* Headline */}
-
           <div className="admin-form-group">
             <label htmlFor="headline">
               Professional Headline <span>*</span>
             </label>
-
             <input
               id="headline"
               name="headline"
               type="text"
               value={form.headline}
               onChange={handleChange}
-              placeholder="Software Engineering Intern | B.Tech CSE Student"
+              placeholder="Software Engineer | Full Stack Developer"
               required
             />
           </div>
 
           {/* Location */}
-
           <div className="admin-form-group">
-            <label htmlFor="location">
-              Location
-            </label>
-
+            <label htmlFor="location">Location</label>
             <input
               id="location"
               name="location"
@@ -203,12 +170,10 @@ export default function ProfileManager() {
           </div>
 
           {/* Email */}
-
           <div className="admin-form-group">
             <label htmlFor="email">
               Email <span>*</span>
             </label>
-
             <input
               id="email"
               name="email"
@@ -221,29 +186,39 @@ export default function ProfileManager() {
           </div>
 
           {/* Phone */}
-
           <div className="admin-form-group">
-            <label htmlFor="phone">
-              Phone
-            </label>
-
+            <label htmlFor="phone">Phone Number</label>
             <input
               id="phone"
               name="phone"
               type="tel"
               value={form.phone}
               onChange={handleChange}
-              placeholder="+91 XXXXX XXXXX"
+              placeholder="+91 72755 23611"
             />
           </div>
 
-          {/* GitHub */}
-
+          {/* WhatsApp Contact */}
           <div className="admin-form-group">
-            <label htmlFor="github">
-              GitHub URL
+            <label htmlFor="whatsapp">
+              WhatsApp Number / Username
             </label>
+            <input
+              id="whatsapp"
+              name="whatsapp"
+              type="text"
+              value={form.whatsapp}
+              onChange={handleChange}
+              placeholder="7275523611 or +917275523611"
+            />
+            <small className="admin-field-help">
+              Used in the contact section WhatsApp button for direct messaging.
+            </small>
+          </div>
 
+          {/* GitHub */}
+          <div className="admin-form-group">
+            <label htmlFor="github">GitHub Profile URL</label>
             <input
               id="github"
               name="github"
@@ -255,12 +230,8 @@ export default function ProfileManager() {
           </div>
 
           {/* LinkedIn */}
-
           <div className="admin-form-group">
-            <label htmlFor="linkedin">
-              LinkedIn URL
-            </label>
-
+            <label htmlFor="linkedin">LinkedIn Profile URL</label>
             <input
               id="linkedin"
               name="linkedin"
@@ -271,76 +242,61 @@ export default function ProfileManager() {
             />
           </div>
 
-          {/* Resume */}
-
-          <div className="admin-form-group">
-            <label htmlFor="resumeUrl">
-              Resume URL
-            </label>
-
-            <input
-              id="resumeUrl"
-              name="resumeUrl"
-              type="url"
-              value={form.resumeUrl}
-              onChange={handleChange}
-              placeholder="https://..."
-            />
-
-            <small className="admin-field-help">
-              URL to your public resume PDF.
-            </small>
-          </div>
-
           {/* Bio */}
-
           <div className="admin-form-group full-width">
             <label htmlFor="bio">
-              Bio <span>*</span>
+              Bio / About Me <span>*</span>
             </label>
-
             <textarea
               id="bio"
               name="bio"
               value={form.bio}
               onChange={handleChange}
               placeholder="Write a short professional introduction..."
-              rows={7}
+              rows={5}
               required
             />
-
             <small className="admin-field-help">
-              This can appear in your About section
-              and portfolio introduction.
+              Displayed in the Hero and About Me sections of your portfolio.
             </small>
           </div>
 
-          {/* Profile Image */}
-          
-          <ImageUploader
-            label="Profile Image"
-            value={form.profileImage}
-            onChange={(url) =>
-              setForm((current) => ({
-                ...current,
-                profileImage: url,
-              }))
-            }
-          />
+          {/* Media Section: Profile Image & Resume */}
+          <div className="admin-media-grid full-width">
+            <div className="media-box">
+              <ImageUploader
+                label="Profile Picture"
+                value={form.profileImage}
+                onChange={(url) =>
+                  setForm((current) => ({
+                    ...current,
+                    profileImage: url,
+                  }))
+                }
+              />
+            </div>
 
-            
+            <div className="media-box">
+              <ResumeUploader
+                value={form.resumeUrl}
+                onChange={(url) =>
+                  setForm((current) => ({
+                    ...current,
+                    resumeUrl: url,
+                  }))
+                }
+              />
+            </div>
+          </div>
 
-          {/* Buttons */}
-
-          <div className="admin-form-actions">
+          {/* Form Actions */}
+          <div className="admin-form-actions full-width">
             <button
               type="submit"
               className="admin-primary-button"
               disabled={saving}
             >
-              {saving
-                ? "Saving..."
-                : "Save Profile"}
+              {saving ? "Saving Changes..." : "Save Profile"}
             </button>
 
             <button
@@ -352,16 +308,6 @@ export default function ProfileManager() {
               Reset
             </button>
           </div>
-
-          <ResumeUploader
-            value={form.resumeUrl}
-            onChange={(url) =>
-            setForm((current) => ({
-            ...current,
-            resumeUrl: url,
-              }))
-            }
-          />
         </form>
       </section>
     </div>

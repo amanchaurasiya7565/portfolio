@@ -1,44 +1,22 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 
 const menuItems = [
-  {
-    name: "Dashboard",
-    path: "/admin/dashboard",
-  },
-  {
-    name: "Profile",
-    path: "/admin/profile",
-  },
-  {
-    name: "Projects",
-    path: "/admin/projects",
-  },
-  {
-    name: "Skills",
-    path: "/admin/skills",
-  },
-  {
-    name: "Education",
-    path: "/admin/education",
-  },
-  {
-    name: "Experience",
-    path: "/admin/experience",
-  },
-  {
-    name: "Achievements",
-    path: "/admin/achievements",
-  },
-  {
-    name: "Certifications",
-    path: "/admin/certifications",
-  },
+  { name: "Dashboard", path: "/admin/dashboard", icon: "📊" },
+  { name: "Profile", path: "/admin/profile", icon: "👤" },
+  { name: "Projects", path: "/admin/projects", icon: "💼" },
+  { name: "Skills", path: "/admin/skills", icon: "⚡" },
+  { name: "Education", path: "/admin/education", icon: "🎓" },
+  { name: "Experience", path: "/admin/experience", icon: "💻" },
+  { name: "Achievements", path: "/admin/achievements", icon: "🏆" },
+  { name: "Certifications", path: "/admin/certifications", icon: "📜" },
 ];
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
     try {
@@ -47,51 +25,60 @@ export default function Sidebar() {
       console.error("Logout failed:", error);
     } finally {
       localStorage.removeItem("admin");
-
-      navigate("/admin/login", {
-        replace: true,
-      });
+      navigate("/admin/login", { replace: true });
     }
   };
 
   return (
-    <aside className="w-64 min-h-screen bg-gray-950 text-white p-5">
-      <div className="mb-8">
-        <h1 className="text-xl font-bold">
-          Portfolio CMS
-        </h1>
+    <aside className="admin-sidebar">
+      <div className="admin-sidebar-header">
+        <div className="admin-brand">
+          <span className="brand-badge">PRO</span>
+          <div className="brand-text">
+            <h2>Portfolio CMS</h2>
+            <p>Admin Workspace</p>
+          </div>
+        </div>
 
-        <p className="text-sm text-gray-400 mt-1">
-          Admin Panel
-        </p>
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="admin-theme-btn"
+          title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+        >
+          {theme === "dark" ? "☀️" : "🌙"}
+        </button>
       </div>
 
-      <nav className="space-y-2">
+      <nav className="admin-sidebar-nav">
         {menuItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `block rounded-lg px-4 py-3 text-sm transition ${
-                isActive
-                  ? "bg-white text-gray-900"
-                  : "text-gray-300 hover:bg-gray-800"
-              }`
+              `admin-nav-link ${isActive ? "active" : ""}`
             }
           >
-            {item.name}
+            <span className="nav-icon">{item.icon}</span>
+            <span className="nav-label">{item.name}</span>
           </NavLink>
         ))}
       </nav>
 
-      <button
-        type="button"
-        onClick={handleLogout}
-        className="mt-8 w-full rounded-lg border border-gray-700 px-4 py-3 text-left text-sm text-gray-300 hover:bg-gray-800"
-      >
-        Logout
-      </button>
+      <div className="admin-sidebar-footer">
+        <Link to="/" target="_blank" className="admin-view-site-link">
+          <span>🌐 View Live Site</span>
+          <span>↗</span>
+        </Link>
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="admin-logout-btn"
+        >
+          <span>🚪 Logout</span>
+        </button>
+      </div>
     </aside>
   );
 }
-

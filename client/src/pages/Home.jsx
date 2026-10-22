@@ -105,15 +105,15 @@ export default function Home() {
       <main>
         <Hero profile={profile} />
         <About profile={profile} />
+        <Education education={education} />
         <Reveal>
           <Skills skills={skills} />
-          </Reveal>
+        </Reveal>
         <Projects projects={projects} />
-        <Education education={education} />
         <Experience experience={experience} />
         <Achievements achievements={achievements} />
         <Certifications certifications={certifications} />
-        <Resume resumeUrl={profile?.resumeUrl} />
+        <Resume resumeUrl={profile?.resumeUrl} profile={profile} />
         <Contact profile={profile} />
       </main>
 

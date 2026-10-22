@@ -1,4 +1,10 @@
 export default function Hero({ profile }) {
+  const rawWhatsapp = profile?.whatsapp || profile?.phone;
+  const cleanWhatsapp = rawWhatsapp ? rawWhatsapp.replace(/\D/g, "") : null;
+  const whatsappUrl = cleanWhatsapp
+    ? `https://wa.me/${cleanWhatsapp.length === 10 ? `91${cleanWhatsapp}` : cleanWhatsapp}`
+    : null;
+
   return (
     <section id="home" className="hero">
       <div className="hero-content">
@@ -6,9 +12,11 @@ export default function Hero({ profile }) {
           Hello, I'm
         </p>
 
-        <h1>{profile.name}</h1>
+        <h1 className="hero-title">{profile.name}</h1>
 
-        <h2>{profile.headline}</h2>
+        <h2 className="hero-headline">
+          {profile.headline}
+        </h2>
 
         <p className="hero-description">
           {profile.bio}
@@ -17,16 +25,18 @@ export default function Hero({ profile }) {
         <div className="hero-buttons">
           <a
             href="#projects"
-            className="primary-button"
+            className="primary-button hero-cta"
           >
-            View Projects
+            <span>View Projects</span>
+            <span className="btn-arrow">↓</span>
           </a>
 
           <a
             href="#contact"
-            className="secondary-button"
+            className="secondary-button hero-cta"
           >
-            Contact Me
+            <span>Contact Me</span>
+            <span className="btn-arrow">→</span>
           </a>
         </div>
 
@@ -36,6 +46,7 @@ export default function Hero({ profile }) {
               href={profile.github}
               target="_blank"
               rel="noreferrer"
+              className="social-pill"
             >
               GitHub ↗
             </a>
@@ -46,8 +57,20 @@ export default function Hero({ profile }) {
               href={profile.linkedin}
               target="_blank"
               rel="noreferrer"
+              className="social-pill"
             >
               LinkedIn ↗
+            </a>
+          )}
+
+          {whatsappUrl && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="social-pill whatsapp-pill"
+            >
+              WhatsApp ↗
             </a>
           )}
         </div>
@@ -55,7 +78,7 @@ export default function Hero({ profile }) {
 
       {profile.profileImage && (
         <div className="hero-image-wrapper">
-          <div className="hero-image-ring">
+          <div className="hero-image-ring card-3d">
             <img
               src={profile.profileImage}
               alt={profile.name}

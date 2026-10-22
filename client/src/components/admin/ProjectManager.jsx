@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import ImageUploader from "../../components/admin/ImageUploader";
+
 const emptyProject = {
   title: "",
   description: "",
@@ -20,16 +21,17 @@ export default function ProjectManager() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const fetchProjects = async () => {
     try {
       setLoading(true);
+      setError("");
 
       const response = await api.get("/projects");
-
-      setProjects(response.data.projects);
-    } catch (error) {
-      setError("Unable to load projects.");
+      setProjects(response.data.projects || []);
+    } catch (err) {
+      setError("Unable to load projects. Ensure the backend server is running.");
     } finally {
       setLoading(false);
     }
@@ -41,43 +43,49 @@ export default function ProjectManager() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
-    setForm((previous) => ({
-      ...previous,
+    setForm((prev) => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
 
     try {
       setSaving(true);
-      setError("");
+
+      const parsedTech = form.technologies
+        ? (Array.isArray(form.technologies)
+            ? form.technologies
+            : form.technologies.split(",")
+          )
+            .map((item) => item.trim())
+            .filter(Boolean)
+        : [];
 
       const payload = {
         ...form,
-        technologies: form.technologies
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
-        order: Number(form.order),
+        technologies: parsedTech,
+        order: Number(form.order) || 0,
       };
 
       if (editingId) {
         await api.put(`/projects/${editingId}`, payload);
+        setSuccess(`Project "${form.title}" updated successfully!`);
       } else {
         await api.post("/projects", payload);
+        setSuccess(`Project "${form.title}" created successfully!`);
       }
 
       setForm(emptyProject);
       setEditingId(null);
-
       await fetchProjects();
-    } catch (error) {
+    } catch (err) {
       setError(
-        error.response?.data?.message ||
-          "Unable to save project."
+        err.response?.data?.message || "Failed to save project. Please check required fields."
       );
     } finally {
       setSaving(false);
@@ -86,38 +94,41 @@ export default function ProjectManager() {
 
   const handleEdit = (project) => {
     setEditingId(project._id);
+    setError("");
+    setSuccess("");
 
     setForm({
       title: project.title,
       description: project.description,
       image: project.image || "",
-      technologies: project.technologies.join(", "),
+      technologies: Array.isArray(project.technologies)
+        ? project.technologies.join(", ")
+        : project.technologies || "",
       githubUrl: project.githubUrl || "",
       liveUrl: project.liveUrl || "",
-      featured: project.featured,
-      order: project.order,
+      featured: Boolean(project.featured),
+      order: project.order ?? 0,
     });
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, title) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this project?"
+      `Are you sure you want to delete the project "${title || "this project"}"?`
     );
 
     if (!confirmed) return;
 
     try {
       await api.delete(`/projects/${id}`);
-
-      setProjects((previous) =>
-        previous.filter((project) => project._id !== id)
-      );
-    } catch (error) {
+      setSuccess("Project deleted successfully.");
+      setProjects((prev) => prev.filter((p) => p._id !== id));
+      if (editingId === id) {
+        setEditingId(null);
+        setForm(emptyProject);
+      }
+    } catch (err) {
       setError("Unable to delete project.");
     }
   };
@@ -125,238 +136,326 @@ export default function ProjectManager() {
   const cancelEdit = () => {
     setEditingId(null);
     setForm(emptyProject);
+    setError("");
+    setSuccess("");
   };
 
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Projects
-        </h1>
+  // Preview array of technologies
+  const techPreview = form.technologies
+    ? (typeof form.technologies === "string"
+        ? form.technologies.split(",")
+        : form.technologies
+      )
+        .map((t) => t.trim())
+        .filter(Boolean)
+    : [];
 
-        <p className="mt-2 text-gray-500">
-          Add and manage the projects displayed on your portfolio.
-        </p>
+  return (
+    <div className="admin-project-manager">
+      <div className="admin-page-header">
+        <div>
+          <p className="admin-eyebrow">Portfolio Showcase</p>
+          <h1>Project Manager</h1>
+          <p>
+            Create, update, and organize your work portfolio, images, links, and technologies.
+          </p>
+        </div>
+
+        {editingId && (
+          <button
+            type="button"
+            onClick={cancelEdit}
+            className="admin-secondary-button"
+          >
+            Cancel Editing
+          </button>
+        )}
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-red-600">
-          {error}
+        <div className="admin-alert admin-alert-error">
+          <span className="alert-icon">⚠</span>
+          <span>{error}</span>
         </div>
       )}
 
-      {/* Project form */}
+      {success && (
+        <div className="admin-alert admin-alert-success">
+          <span className="alert-icon">✓</span>
+          <span>{success}</span>
+        </div>
+      )}
 
-      <form
-        onSubmit={handleSubmit}
-        className="rounded-2xl bg-white p-6 shadow-sm"
-      >
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">
-            {editingId ? "Edit Project" : "Add Project"}
-          </h2>
+      {/* Project Form Card */}
+      <section className="admin-card card-3d">
+        <div className="admin-card-header">
+          <h2>{editingId ? "Edit Project" : "Add New Project"}</h2>
+          <p>
+            {editingId
+              ? "Update project attributes, description, or media."
+              : "Fill in the project details below to add it to your portfolio."}
+          </p>
+        </div>
 
-          {editingId && (
+        <form onSubmit={handleSubmit} className="admin-form">
+          {/* Title */}
+          <div className="admin-form-group">
+            <label htmlFor="project-title">
+              Project Title <span>*</span>
+            </label>
+            <input
+              id="project-title"
+              name="title"
+              type="text"
+              required
+              placeholder="e.g. AI-Powered Code Assistant"
+              value={form.title}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Display Order */}
+          <div className="admin-form-group">
+            <label htmlFor="project-order">Display Order</label>
+            <input
+              id="project-order"
+              name="order"
+              type="number"
+              placeholder="0 (Lower numbers display first)"
+              value={form.order}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* GitHub URL */}
+          <div className="admin-form-group">
+            <label htmlFor="project-github">GitHub Repository URL</label>
+            <input
+              id="project-github"
+              name="githubUrl"
+              type="url"
+              placeholder="https://github.com/username/project"
+              value={form.githubUrl}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Live Demo URL */}
+          <div className="admin-form-group">
+            <label htmlFor="project-live">Live Demo / Production URL</label>
+            <input
+              id="project-live"
+              name="liveUrl"
+              type="url"
+              placeholder="https://myproject.vercel.app"
+              value={form.liveUrl}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Technologies */}
+          <div className="admin-form-group full-width">
+            <label htmlFor="project-tech">
+              Technologies / Stack <span>*</span>
+            </label>
+            <input
+              id="project-tech"
+              name="technologies"
+              type="text"
+              required
+              placeholder="e.g. React, Node.js, MongoDB, TailwindCSS, Express"
+              value={form.technologies}
+              onChange={handleChange}
+            />
+            <small className="admin-field-help">
+              Separate each technology with a comma.
+            </small>
+
+            {/* Live Tag Preview */}
+            {techPreview.length > 0 && (
+              <div className="tech-preview-row">
+                {techPreview.map((t, idx) => (
+                  <span key={idx} className="tech-preview-pill">
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Description */}
+          <div className="admin-form-group full-width">
+            <label htmlFor="project-desc">
+              Project Description <span>*</span>
+            </label>
+            <textarea
+              id="project-desc"
+              name="description"
+              required
+              rows={4}
+              placeholder="Describe the problem solved, architecture, and key technical highlights..."
+              value={form.description}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Image Uploader */}
+          <div className="admin-form-group full-width">
+            <label className="admin-field-label">Project Cover Image</label>
+            <ImageUploader
+              label="Upload Screenshot or Thumbnail"
+              value={form.image}
+              onChange={(url) =>
+                setForm((prev) => ({ ...prev, image: url }))
+              }
+            />
+          </div>
+
+          {/* Featured Toggle */}
+          <div className="admin-form-group full-width">
+            <label className="admin-checkbox-label">
+              <input
+                type="checkbox"
+                name="featured"
+                checked={form.featured}
+                onChange={handleChange}
+                className="admin-checkbox-input"
+              />
+              <span className="checkbox-custom-text">
+                ⭐ Feature this project on the dashboard and highlight it in your portfolio
+              </span>
+            </label>
+          </div>
+
+          {/* Form Actions */}
+          <div className="admin-form-actions full-width">
             <button
-              type="button"
-              onClick={cancelEdit}
-              className="text-sm text-gray-500 hover:text-gray-900"
+              type="submit"
+              disabled={saving}
+              className="admin-primary-button"
             >
-              Cancel
+              {saving
+                ? "Saving..."
+                : editingId
+                ? "Update Project"
+                : "+ Create Project"}
             </button>
-          )}
+
+            {editingId && (
+              <button
+                type="button"
+                onClick={cancelEdit}
+                className="admin-secondary-button"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        </form>
+      </section>
+
+      {/* Projects List Section */}
+      <section className="admin-projects-list-section">
+        <div className="list-section-header">
+          <h2>All Projects ({projects.length})</h2>
+          <p>Manage, preview, and organize your existing published projects.</p>
         </div>
-
-        <div className="grid gap-5 md:grid-cols-2">
-          <Input
-            label="Project Title"
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            required
-          />
-          <ImageUploader
-            value={form.image}
-            onChange={(url) =>
-              setForm((current) => ({
-                ...current,
-                image: url,
-              }))
-            }
-          />
-          <Input
-            label="GitHub URL"
-            name="githubUrl"
-            value={form.githubUrl}
-            onChange={handleChange}
-            placeholder="https://github.com/..."
-          />
-
-          <Input
-            label="Live Demo URL"
-            name="liveUrl"
-            value={form.liveUrl}
-            onChange={handleChange}
-            placeholder="https://..."
-          />
-
-          <Input
-            label="Technologies"
-            name="technologies"
-            value={form.technologies}
-            onChange={handleChange}
-            placeholder="React, JavaScript, CSS"
-          />
-
-          <Input
-            label="Display Order"
-            name="order"
-            type="number"
-            value={form.order}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="mt-5">
-          <label className="mb-2 block text-sm font-medium">
-            Description
-          </label>
-
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            required
-            rows={5}
-            className="w-full rounded-lg border px-4 py-3 outline-none focus:ring-2 focus:ring-gray-900"
-            placeholder="Describe what you built..."
-          />
-        </div>
-
-        <label className="mt-5 flex items-center gap-3">
-          <input
-            type="checkbox"
-            name="featured"
-            checked={form.featured}
-            onChange={handleChange}
-            className="h-4 w-4"
-          />
-
-          <span className="text-sm">
-            Feature this project
-          </span>
-        </label>
-
-        <button
-          type="submit"
-          disabled={saving}
-          className="mt-6 rounded-lg bg-gray-900 px-6 py-3 font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-        >
-          {saving
-            ? "Saving..."
-            : editingId
-              ? "Update Project"
-              : "Add Project"}
-        </button>
-      </form>
-
-      {/* Project list */}
-
-      <div className="rounded-2xl bg-white p-6 shadow-sm">
-        <h2 className="mb-6 text-xl font-semibold">
-          Your Projects
-        </h2>
 
         {loading ? (
-          <p className="text-gray-500">
-            Loading projects...
-          </p>
+          <div className="admin-page-state">
+            <div className="spinner" />
+            <p>Loading your projects...</p>
+          </div>
         ) : projects.length === 0 ? (
-          <p className="text-gray-500">
-            No projects added yet.
-          </p>
+          <div className="admin-empty-state card-3d">
+            <span className="empty-icon">💼</span>
+            <h3>No Projects Yet</h3>
+            <p>Add your first project using the form above to start building your portfolio.</p>
+          </div>
         ) : (
-          <div className="space-y-4">
+          <div className="admin-project-cards-grid">
             {projects.map((project) => (
-              <div
-                key={project._id}
-                className="flex flex-col gap-4 rounded-xl border p-5 md:flex-row md:items-center md:justify-between"
-              >
-                <div>
-                  <div className="flex items-center gap-3">
-                    <h3 className="font-semibold">
-                      {project.title}
-                    </h3>
+              <div key={project._id} className="admin-item-card card-3d">
+                <div className="item-card-media">
+                  {project.image ? (
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="item-card-img"
+                    />
+                  ) : (
+                    <div className="item-card-placeholder">
+                      <span>💻</span>
+                    </div>
+                  )}
 
-                    {project.featured && (
-                      <span className="rounded-full bg-gray-900 px-2 py-1 text-xs text-white">
-                        Featured
-                      </span>
-                    )}
+                  {project.featured && (
+                    <span className="item-featured-pill">⭐ Featured</span>
+                  )}
+                </div>
+
+                <div className="item-card-body">
+                  <div className="item-card-title-row">
+                    <h3>{project.title}</h3>
+                    <span className="item-order-badge">#{project.order ?? 0}</span>
                   </div>
 
-                  <p className="mt-1 text-sm text-gray-500">
-                    {project.description}
-                  </p>
+                  <p className="item-card-desc">{project.description}</p>
 
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {project.technologies.map((tech) => (
-                      <span
-                        key={tech}
-                        className="rounded-md bg-gray-100 px-2 py-1 text-xs"
-                      >
+                  <div className="item-card-tech-list">
+                    {project.technologies?.map((tech, idx) => (
+                      <span key={idx} className="tech-badge">
                         {tech}
                       </span>
                     ))}
                   </div>
+
+                  <div className="item-card-links">
+                    {project.githubUrl && (
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="item-link"
+                      >
+                        GitHub ↗
+                      </a>
+                    )}
+                    {project.liveUrl && (
+                      <a
+                        href={project.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="item-link live"
+                      >
+                        Live Demo ↗
+                      </a>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="item-card-actions">
                   <button
+                    type="button"
                     onClick={() => handleEdit(project)}
-                    className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-50"
+                    className="item-btn edit-btn"
                   >
-                    Edit
+                    ✏️ Edit
                   </button>
 
                   <button
-                    onClick={() => handleDelete(project._id)}
-                    className="rounded-lg bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
+                    type="button"
+                    onClick={() => handleDelete(project._id, project.title)}
+                    className="item-btn delete-btn"
                   >
-                    Delete
+                    🗑️ Delete
                   </button>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
-    </div>
-  );
-}
-
-function Input({
-  label,
-  name,
-  value,
-  onChange,
-  type = "text",
-  ...props
-}) {
-  return (
-    <div>
-      <label className="mb-2 block text-sm font-medium">
-        {label}
-      </label>
-
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full rounded-lg border px-4 py-3 outline-none focus:ring-2 focus:ring-gray-900"
-        {...props}
-      />
+      </section>
     </div>
   );
 }

@@ -20,9 +20,16 @@ export default function AchievementsManager() {
         },
         {
           name: "link",
-          label: "Related Link",
+          label: "Related Link / Proof",
           placeholder: "https://example.com",
           fullWidth: true,
+        },
+        {
+          name: "image",
+          label: "Achievement Image / Certificate / Trophy",
+          type: "image",
+          fullWidth: true,
+          help: "Upload an image of your certificate, badge, trophy, or contest rank screenshot (JPG, PNG, WebP)",
         },
         {
           name: "description",

@@ -19,6 +19,11 @@ const certificationSchema = new mongoose.Schema(
 
     credentialUrl: String,
 
+    image: {
+      type: String,
+      default: "",
+    },
+
     order: {
       type: Number,
       default: 0,

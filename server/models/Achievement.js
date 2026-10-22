@@ -23,6 +23,11 @@ const achievementSchema = new mongoose.Schema(
       trim: true,
     },
 
+    image: {
+      type: String,
+      default: "",
+    },
+
     order: {
       type: Number,
       default: 0,

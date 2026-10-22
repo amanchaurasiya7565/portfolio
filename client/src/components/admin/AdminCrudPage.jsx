@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import ImageUploader from "./ImageUploader";
 
 export default function AdminCrudPage({
   title,
@@ -199,7 +200,18 @@ export default function AdminCrudPage({
                   {field.required && <span> *</span>}
                 </label>
 
-                {field.type === "textarea" ? (
+                {field.type === "image" ? (
+                  <ImageUploader
+                    label={field.label}
+                    value={form[field.name] ?? ""}
+                    onChange={(url) =>
+                      setForm((current) => ({
+                        ...current,
+                        [field.name]: url,
+                      }))
+                    }
+                  />
+                ) : field.type === "textarea" ? (
                   <textarea
                     id={field.name}
                     name={field.name}
@@ -289,6 +301,16 @@ export default function AdminCrudPage({
             <div className="admin-crud-list">
               {items.map((item) => (
                 <div className="admin-crud-item" key={item._id}>
+                  {item.image && (
+                    <div className="admin-crud-item-thumb-wrapper">
+                      <img
+                        src={item.image}
+                        alt={item.title || item.name || "Preview"}
+                        className="admin-crud-item-thumb"
+                      />
+                    </div>
+                  )}
+
                   <div className="admin-crud-item-content">
                     <strong>
                       {item.title ||
@@ -305,6 +327,10 @@ export default function AdminCrudPage({
                         item.date ||
                         ""}
                     </small>
+
+                    {item.image && (
+                      <span className="admin-thumb-badge">🖼️ Image Attached</span>
+                    )}
                   </div>
 
                   <div className="admin-crud-item-actions">

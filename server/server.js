@@ -17,6 +17,7 @@ import certificationRoutes from "./routes/certificationRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import resumeRoutes from "./routes/resumeRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 
 const app = express();
 
@@ -67,6 +68,7 @@ app.use("/api/achievements", achievementRoutes);
 app.use("/api/certifications", certificationRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/resume", resumeRoutes);
+app.use("/api/contact", contactRoutes);
 
 // Keep the 404 and error handlers after every API route.
 app.use(notFound);

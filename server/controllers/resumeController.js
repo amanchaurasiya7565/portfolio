@@ -175,10 +175,14 @@ export const getResumeView = async (req, res) => {
       return res.status(404).json({ message: "Resume file not found. Please upload your resume in the admin panel." });
     }
 
+    res.removeHeader("X-Frame-Options");
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", 'inline; filename="Aman_Chaurasiya_Resume.pdf"');
     res.setHeader("Content-Length", buffer.length);
     res.setHeader("Cache-Control", "public, max-age=3600");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Content-Security-Policy", "frame-ancestors *");
     return res.end(buffer);
   } catch (error) {
     console.error("Failed to stream inline resume:", error);

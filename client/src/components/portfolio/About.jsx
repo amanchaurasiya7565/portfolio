@@ -1,9 +1,8 @@
+import { getWhatsappUrl } from "../../utils/whatsapp";
+
 export default function About({ profile }) {
   const rawWhatsapp = profile?.whatsapp || profile?.phone;
-  const cleanWhatsapp = rawWhatsapp ? rawWhatsapp.replace(/\D/g, "") : null;
-  const whatsappUrl = cleanWhatsapp
-    ? `https://wa.me/${cleanWhatsapp.length === 10 ? `91${cleanWhatsapp}` : cleanWhatsapp}`
-    : null;
+  const whatsappUrl = getWhatsappUrl(rawWhatsapp);
 
   return (
     <section id="about" className="about-section">
@@ -14,10 +13,10 @@ export default function About({ profile }) {
           Building, learning, and <span className="cursive-accent">solving problems</span>.
         </h2>
 
-        <p className="about-bio">{profile.bio}</p>
+        {profile?.bio && <p className="about-bio">{profile.bio}</p>}
 
         <div className="about-info">
-          {profile.location && (
+          {profile?.location && (
             <div className="about-info-item card-3d">
               <span className="info-icon">📍</span>
               <strong>Location</strong>
@@ -25,7 +24,7 @@ export default function About({ profile }) {
             </div>
           )}
 
-          {profile.email && (
+          {profile?.email && (
             <div className="about-info-item card-3d">
               <span className="info-icon">✉️</span>
               <strong>Email</strong>
@@ -35,7 +34,7 @@ export default function About({ profile }) {
             </div>
           )}
 
-          {rawWhatsapp && (
+          {rawWhatsapp && whatsappUrl && (
             <div className="about-info-item card-3d whatsapp-info-item">
               <span className="info-icon">💬</span>
               <strong>WhatsApp</strong>

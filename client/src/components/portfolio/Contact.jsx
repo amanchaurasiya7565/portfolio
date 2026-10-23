@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../../services/api";
+import { getWhatsappUrl } from "../../utils/whatsapp";
 
 export default function Contact({ profile }) {
   const [formData, setFormData] = useState({
@@ -11,12 +12,8 @@ export default function Contact({ profile }) {
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
 
-  const rawWhatsapp = profile?.whatsapp || profile?.phone || "7275523611";
-  // Clean digits: if 10 digits without country code, prefix 91 (India)
-  const cleanDigits = rawWhatsapp.replace(/\D/g, "");
-  const whatsappNumber =
-    cleanDigits.length === 10 ? `91${cleanDigits}` : cleanDigits;
-  const whatsappUrl = `https://wa.me/${whatsappNumber}`;
+  const rawWhatsapp = profile?.whatsapp || profile?.phone;
+  const whatsappUrl = getWhatsappUrl(rawWhatsapp) || "https://wa.me/917275523611";
 
   const handleChange = (e) => {
     const { name, value } = e.target;

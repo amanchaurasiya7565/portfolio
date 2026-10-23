@@ -209,10 +209,10 @@ export default function ProfileManager() {
               type="text"
               value={form.whatsapp}
               onChange={handleChange}
-              placeholder="7275523611 or +917275523611"
+              placeholder="7275523611, @username, or wa.me/username"
             />
             <small className="admin-field-help">
-              Used in the contact section WhatsApp button for direct messaging.
+              Supports 10-digit phone, international numbers, @username handle, or direct WhatsApp link.
             </small>
           </div>
 

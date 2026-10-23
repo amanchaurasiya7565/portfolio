@@ -1,9 +1,7 @@
+import { getWhatsappUrl } from "../../utils/whatsapp";
+
 export default function Hero({ profile }) {
-  const rawWhatsapp = profile?.whatsapp || profile?.phone;
-  const cleanWhatsapp = rawWhatsapp ? rawWhatsapp.replace(/\D/g, "") : null;
-  const whatsappUrl = cleanWhatsapp
-    ? `https://wa.me/${cleanWhatsapp.length === 10 ? `91${cleanWhatsapp}` : cleanWhatsapp}`
-    : null;
+  const whatsappUrl = getWhatsappUrl(profile?.whatsapp || profile?.phone);
 
   return (
     <section id="home" className="hero">
@@ -12,15 +10,13 @@ export default function Hero({ profile }) {
           Hello, I'm
         </p>
 
-        <h1 className="hero-title">{profile.name}</h1>
+        <h1 className="hero-title">{profile?.name || "Portfolio"}</h1>
 
-        <h2 className="hero-headline">
-          {profile.headline}
-        </h2>
-
-        <p className="hero-description">
-          {profile.bio}
-        </p>
+        {profile?.headline && (
+          <h2 className="hero-headline">
+            {profile.headline}
+          </h2>
+        )}
 
         <div className="hero-buttons">
           <a
@@ -41,7 +37,7 @@ export default function Hero({ profile }) {
         </div>
 
         <div className="social-links">
-          {profile.github && (
+          {profile?.github && (
             <a
               href={profile.github}
               target="_blank"
@@ -52,7 +48,7 @@ export default function Hero({ profile }) {
             </a>
           )}
 
-          {profile.linkedin && (
+          {profile?.linkedin && (
             <a
               href={profile.linkedin}
               target="_blank"
@@ -76,12 +72,12 @@ export default function Hero({ profile }) {
         </div>
       </div>
 
-      {profile.profileImage && (
+      {profile?.profileImage && (
         <div className="hero-image-wrapper">
           <div className="hero-image-ring card-3d">
             <img
               src={profile.profileImage}
-              alt={profile.name}
+              alt={profile?.name || "Profile Photo"}
             />
           </div>
         </div>

@@ -20,7 +20,7 @@ export default function Skills({ skills }) {
           {Object.entries(groupedSkills).map(
             ([category, categorySkills]) => (
               <div
-                className="skill-category"
+                className="skill-category card-3d"
                 key={category}
               >
                 <h3>{category}</h3>

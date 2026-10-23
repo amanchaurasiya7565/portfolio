@@ -1,19 +1,69 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Resume({ resumeUrl, profile }) {
   const [showModal, setShowModal] = useState(false);
+  const [blobUrl, setBlobUrl] = useState(null);
+  const [loadingPdf, setLoadingPdf] = useState(false);
 
-  // If no resumeUrl is provided in props, check if profile has one
-  const activeUrl = resumeUrl || profile?.resumeUrl;
-
-  if (!activeUrl) {
-    return null;
-  }
-
+  // Default to provided resumeUrl, profile resumeUrl, or fallback public resume
+  const activeUrl = resumeUrl || profile?.resumeUrl || "/resume.pdf";
   const candidateName = profile?.name || "Aman Chaurasiya";
   const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
   const viewEndpoint = `${apiBase}/resume/view`;
   const downloadEndpoint = `${apiBase}/resume/download`;
+
+  useEffect(() => {
+    let createdUrl = null;
+
+    if (showModal) {
+      setLoadingPdf(true);
+
+      const candidateSources = [
+        viewEndpoint,
+        activeUrl,
+        "/resume.pdf",
+      ].filter(Boolean);
+
+      const fetchAndSetBlob = async () => {
+        for (const source of candidateSources) {
+          try {
+            const response = await fetch(source);
+            if (response.ok) {
+              const blob = await response.blob();
+              if (blob.size > 200) {
+                const pdfBlob = new Blob([blob], { type: "application/pdf" });
+                createdUrl = URL.createObjectURL(pdfBlob);
+                setBlobUrl(createdUrl);
+                setLoadingPdf(false);
+                return;
+              }
+            }
+          } catch (err) {
+            console.warn("Could not load PDF via blob from:", source, err.message);
+          }
+        }
+
+        // If fetch failed, fallback directly to activeUrl or viewEndpoint
+        setBlobUrl(activeUrl || viewEndpoint);
+        setLoadingPdf(false);
+      };
+
+      fetchAndSetBlob();
+    } else {
+      setBlobUrl((prev) => {
+        if (prev && prev.startsWith("blob:")) {
+          URL.revokeObjectURL(prev);
+        }
+        return null;
+      });
+    }
+
+    return () => {
+      if (createdUrl && createdUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(createdUrl);
+      }
+    };
+  }, [showModal, activeUrl, viewEndpoint]);
 
   return (
     <>
@@ -160,7 +210,7 @@ export default function Resume({ resumeUrl, profile }) {
                     <polyline points="15 3 21 3 21 9" />
                     <line x1="10" y1="14" x2="21" y2="3" />
                   </svg>
-                  <span>Open Fullscreen</span>
+                  <span>Fullscreen</span>
                 </a>
 
                 <a
@@ -198,29 +248,66 @@ export default function Resume({ resumeUrl, profile }) {
             </div>
 
             <div className="resume-modal-body">
-              <object
-                data={viewEndpoint}
-                type="application/pdf"
-                className="resume-pdf-frame"
-              >
-                <iframe
-                  src={viewEndpoint}
-                  title={`${candidateName} Resume`}
+              {loadingPdf ? (
+                <div className="resume-loading-state">
+                  <div className="spinner" />
+                  <p>Loading document preview...</p>
+                </div>
+              ) : blobUrl ? (
+                <object
+                  data={blobUrl}
+                  type="application/pdf"
                   className="resume-pdf-frame"
                 >
-                  <div className="pdf-fallback-container">
-                    <p>Unable to display PDF preview directly on this browser.</p>
+                  <iframe
+                    src={blobUrl}
+                    title={`${candidateName} Resume`}
+                    className="resume-pdf-frame"
+                  >
+                    <div className="pdf-fallback-container">
+                      <p>Unable to display PDF preview directly inside this browser view.</p>
+                      <div className="pdf-fallback-actions">
+                        <a
+                          href={blobUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="primary-button"
+                        >
+                          Open Document Directly
+                        </a>
+                        <a
+                          href={downloadEndpoint}
+                          className="secondary-button"
+                          download="Aman_Chaurasiya_Resume.pdf"
+                        >
+                          Download PDF File
+                        </a>
+                      </div>
+                    </div>
+                  </iframe>
+                </object>
+              ) : (
+                <div className="pdf-fallback-container">
+                  <p>Unable to load PDF document.</p>
+                  <div className="pdf-fallback-actions">
                     <a
                       href={viewEndpoint}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="primary-button"
                     >
-                      Open PDF in New Window
+                      Try Opening Fullscreen
+                    </a>
+                    <a
+                      href={downloadEndpoint}
+                      className="secondary-button"
+                      download="Aman_Chaurasiya_Resume.pdf"
+                    >
+                      Download Resume
                     </a>
                   </div>
-                </iframe>
-              </object>
+                </div>
+              )}
             </div>
           </div>
         </div>

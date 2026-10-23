@@ -22,7 +22,14 @@ import contactRoutes from "./routes/contactRoutes.js";
 const app = express();
 
 app.disable("x-powered-by");
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    frameguard: false,
+  })
+);
 
 app.use(
   cors({

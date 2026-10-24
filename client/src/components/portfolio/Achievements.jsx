@@ -78,7 +78,7 @@ export default function Achievements({ achievements = [] }) {
                   <h3 className="achievement-title">{item.title}</h3>
 
                   {item.description && (
-                    <p className="achievement-description">{item.description}</p>
+                    <p className="achievement-description preserve-whitespace">{item.description}</p>
                   )}
 
                   <div className="achievement-actions-row">

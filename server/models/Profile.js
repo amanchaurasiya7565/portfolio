@@ -58,6 +58,21 @@ const profileSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+
+    leetcode: {
+      type: String,
+      trim: true,
+    },
+
+    codechef: {
+      type: String,
+      trim: true,
+    },
+
+    codeforces: {
+      type: String,
+      trim: true,
+    },
   },
   { timestamps: true }
 );

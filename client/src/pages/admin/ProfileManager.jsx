@@ -14,6 +14,9 @@ export default function ProfileManager() {
     whatsapp: "",
     github: "",
     linkedin: "",
+    leetcode: "",
+    codechef: "",
+    codeforces: "",
     profileImage: "",
     resumeUrl: "",
   });
@@ -46,6 +49,9 @@ export default function ProfileManager() {
         whatsapp: profile.whatsapp || profile.phone || "",
         github: profile.github || "",
         linkedin: profile.linkedin || "",
+        leetcode: profile.leetcode || "",
+        codechef: profile.codechef || "",
+        codeforces: profile.codeforces || "",
         profileImage: profile.profileImage || "",
         resumeUrl: profile.resumeUrl || "",
       });
@@ -239,6 +245,45 @@ export default function ProfileManager() {
               value={form.linkedin}
               onChange={handleChange}
               placeholder="https://linkedin.com/in/username"
+            />
+          </div>
+
+          {/* LeetCode */}
+          <div className="admin-form-group">
+            <label htmlFor="leetcode">LeetCode Profile URL</label>
+            <input
+              id="leetcode"
+              name="leetcode"
+              type="url"
+              value={form.leetcode}
+              onChange={handleChange}
+              placeholder="https://leetcode.com/u/username"
+            />
+          </div>
+
+          {/* CodeChef */}
+          <div className="admin-form-group">
+            <label htmlFor="codechef">CodeChef Profile URL</label>
+            <input
+              id="codechef"
+              name="codechef"
+              type="url"
+              value={form.codechef}
+              onChange={handleChange}
+              placeholder="https://www.codechef.com/users/username"
+            />
+          </div>
+
+          {/* Codeforces */}
+          <div className="admin-form-group">
+            <label htmlFor="codeforces">Codeforces Profile URL</label>
+            <input
+              id="codeforces"
+              name="codeforces"
+              type="url"
+              value={form.codeforces}
+              onChange={handleChange}
+              placeholder="https://codeforces.com/profile/username"
             />
           </div>
 

@@ -13,7 +13,9 @@ export default function About({ profile }) {
           Building, learning, and <span className="cursive-accent">solving problems</span>.
         </h2>
 
-        {profile?.bio && <p className="about-bio">{profile.bio}</p>}
+        {profile?.bio && (
+          <p className="about-bio preserve-whitespace">{profile.bio}</p>
+        )}
 
         <div className="about-info">
           {profile?.location && (

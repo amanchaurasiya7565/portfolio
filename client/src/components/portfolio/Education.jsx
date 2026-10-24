@@ -33,7 +33,7 @@ export default function Education({ education }) {
               )}
 
               {item.description && (
-                <p className="timeline-description">{item.description}</p>
+                <p className="timeline-description preserve-whitespace">{item.description}</p>
               )}
             </div>
           ))}

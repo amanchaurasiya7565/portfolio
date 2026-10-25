@@ -3,8 +3,12 @@ import axios from "axios";
 const api = axios.create({
   baseURL: (
     import.meta.env.VITE_API_URL ||
+<<<<<<< HEAD
     "https://portfolio-pocn.onrender.com/api"
   ).replace(/\/+$/, ""),
+=======
+    "https://portfolio-pocn.onrender.com/api",
+>>>>>>> 37d72c3985e058f97333d00918b0e512df565520
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

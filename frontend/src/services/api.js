@@ -1,12 +1,17 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL:
+  baseURL: (
     import.meta.env.VITE_API_URL ||
-    "http://localhost:5000/api",
+    "https://portfolio-pocn.onrender.com/api"
+  ).replace(/\/+$/, ""),
   withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
+// Handle API responses and authentication errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {

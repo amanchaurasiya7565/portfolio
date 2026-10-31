@@ -66,6 +66,9 @@ async function resolveSrvUriViaDoH(srvUri) {
 }
 
 const connectDB = async (retries = 3) => {
+  if (mongoose.connection.readyState >= 1) {
+    return true;
+  }
   let uri = process.env.MONGO_URI?.trim();
   if (!uri) throw new Error("MONGO_URI is not defined in server/.env");
 

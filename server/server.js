@@ -48,7 +48,8 @@ app.use(
       if (!origin) return callback(null, true);
       if (
         allowedOrigins.includes(origin) ||
-        /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)
+        /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin) ||
+        origin.endsWith(".vercel.app")
       ) {
         return callback(null, true);
       }
@@ -60,6 +61,17 @@ app.use(
 
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
+
+// Ensure MongoDB connection in serverless function environments (e.g. Vercel)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("MongoDB serverless connection error:", error.message);
+    next();
+  }
+});
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -115,6 +127,8 @@ const startServer = async () => {
   });
 };
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
 
 export default app;

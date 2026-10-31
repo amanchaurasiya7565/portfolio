@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "../../services/api";
 import ImageUploader from "../../components/admin/ImageUploader";
 import ResumeUploader from "../../components/admin/resumeUploader";
+import AudioUploader from "../../components/admin/AudioUploader";
 
 export default function ProfileManager() {
   const [form, setForm] = useState({
@@ -19,6 +20,7 @@ export default function ProfileManager() {
     codeforces: "",
     profileImage: "",
     resumeUrl: "",
+    introAudioUrl: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -27,11 +29,7 @@ export default function ProfileManager() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -54,6 +52,7 @@ export default function ProfileManager() {
         codeforces: profile.codeforces || "",
         profileImage: profile.profileImage || "",
         resumeUrl: profile.resumeUrl || "",
+        introAudioUrl: profile.introAudioUrl || "",
       });
     } catch (err) {
       setError(
@@ -62,7 +61,11 @@ export default function ProfileManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -109,7 +112,7 @@ export default function ProfileManager() {
           <p className="admin-eyebrow">Personal Information</p>
           <h1>Profile Settings</h1>
           <p>
-            Manage your personal bio, headline, contact channels, avatar, and resume.
+            Manage your personal bio, headline, contact channels, avatar, resume, and voice intro audio.
           </p>
         </div>
       </div>
@@ -200,97 +203,95 @@ export default function ProfileManager() {
               type="tel"
               value={form.phone}
               onChange={handleChange}
-              placeholder="+91 72755 23611"
+              placeholder="+91 1234567890"
             />
           </div>
 
-          {/* WhatsApp Contact */}
+          {/* WhatsApp */}
           <div className="admin-form-group">
-            <label htmlFor="whatsapp">
-              WhatsApp Number / Username
-            </label>
+            <label htmlFor="whatsapp">WhatsApp Number / Username</label>
             <input
               id="whatsapp"
               name="whatsapp"
               type="text"
               value={form.whatsapp}
               onChange={handleChange}
-              placeholder="7275523611, @username, or wa.me/username"
+              placeholder="+91 1234567890 or WhatsApp Username"
             />
             <small className="admin-field-help">
-              Supports 10-digit phone, international numbers, @username handle, or direct WhatsApp link.
+              Used for the WhatsApp quick connect buttons throughout your portfolio.
             </small>
           </div>
 
           {/* GitHub */}
           <div className="admin-form-group">
-            <label htmlFor="github">GitHub Profile URL</label>
+            <label htmlFor="github">GitHub URL</label>
             <input
               id="github"
               name="github"
               type="url"
               value={form.github}
               onChange={handleChange}
-              placeholder="https://github.com/username"
+              placeholder="https://github.com/your-username"
             />
           </div>
 
           {/* LinkedIn */}
           <div className="admin-form-group">
-            <label htmlFor="linkedin">LinkedIn Profile URL</label>
+            <label htmlFor="linkedin">LinkedIn URL</label>
             <input
               id="linkedin"
               name="linkedin"
               type="url"
               value={form.linkedin}
               onChange={handleChange}
-              placeholder="https://linkedin.com/in/username"
+              placeholder="https://linkedin.com/in/your-username"
             />
           </div>
 
           {/* LeetCode */}
           <div className="admin-form-group">
-            <label htmlFor="leetcode">LeetCode Profile URL</label>
+            <label htmlFor="leetcode">LeetCode URL</label>
             <input
               id="leetcode"
               name="leetcode"
               type="url"
               value={form.leetcode}
               onChange={handleChange}
-              placeholder="https://leetcode.com/u/username"
+              placeholder="https://leetcode.com/u/your-username"
             />
           </div>
 
           {/* CodeChef */}
           <div className="admin-form-group">
-            <label htmlFor="codechef">CodeChef Profile URL</label>
+            <label htmlFor="codechef">CodeChef URL</label>
             <input
               id="codechef"
               name="codechef"
               type="url"
               value={form.codechef}
               onChange={handleChange}
-              placeholder="https://www.codechef.com/users/username"
+              placeholder="https://codechef.com/users/your-username"
             />
           </div>
 
           {/* Codeforces */}
           <div className="admin-form-group">
-            <label htmlFor="codeforces">Codeforces Profile URL</label>
+            <label htmlFor="codeforces">Codeforces URL</label>
             <input
               id="codeforces"
               name="codeforces"
               type="url"
               value={form.codeforces}
               onChange={handleChange}
-              placeholder="https://codeforces.com/profile/username"
+              placeholder="https://codeforces.com/profile/your-username"
             />
           </div>
 
           {/* Bio */}
           <div className="admin-form-group full-width">
             <label htmlFor="bio">
-              Bio / About Me <span>*</span>
+              Professional Biography <span>*</span>
             </label>
             <textarea
               id="bio"
@@ -306,8 +307,8 @@ export default function ProfileManager() {
             </small>
           </div>
 
-          {/* Media Section: Profile Image & Resume */}
-          <div className="admin-media-grid full-width">
+          {/* Media Section: Profile Image, Resume & Audio Intro */}
+          <div className="admin-media-grid full-width" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }}>
             <div className="media-box">
               <ImageUploader
                 label="Profile Picture"
@@ -328,6 +329,19 @@ export default function ProfileManager() {
                   setForm((current) => ({
                     ...current,
                     resumeUrl: url,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="media-box">
+              <AudioUploader
+                label="Personal Intro Audio"
+                value={form.introAudioUrl}
+                onChange={(url) =>
+                  setForm((current) => ({
+                    ...current,
+                    introAudioUrl: url,
                   }))
                 }
               />

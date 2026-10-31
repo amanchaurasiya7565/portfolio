@@ -18,7 +18,10 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <a href="#home" className="logo" aria-label="Aman Chaurasiya home">
-        <img src="/aman-logo.png" alt="Aman Chaurasiya logo" />
+        <img
+          src={theme === "dark" ? "/aman-logo-dark.png" : "/aman-logo.png"}
+          alt="Aman Chaurasiya logo"
+        />
       </a>
 
       {/* Center Nav Links */}

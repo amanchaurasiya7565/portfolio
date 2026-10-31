@@ -33,7 +33,18 @@ export default function Education({ education }) {
               )}
 
               {item.description && (
-                <p className="timeline-description preserve-whitespace">{item.description}</p>
+                <div className="education-desc-card">
+                  <div className="education-desc-header">
+                    <div className="education-desc-title">
+                      <span className="education-desc-icon">📖</span>
+                      <span>Academic Focus & Key Learnings</span>
+                    </div>
+                    <span className="education-desc-badge">Highlights</span>
+                  </div>
+                  <p className="education-desc-text preserve-whitespace">
+                    {item.description}
+                  </p>
+                </div>
               )}
             </div>
           ))}

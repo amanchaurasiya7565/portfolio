@@ -45,6 +45,10 @@ export function AuthProvider({ children }) {
       password,
     });
 
+    if (response.data.token) {
+      localStorage.setItem("adminToken", response.data.token);
+    }
+
     setAdmin(response.data.admin);
     return response.data;
   };
@@ -53,6 +57,7 @@ export function AuthProvider({ children }) {
     try {
       await api.post("/auth/logout");
     } finally {
+      localStorage.removeItem("adminToken");
       setAdmin(null);
     }
   };

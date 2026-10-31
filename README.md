@@ -206,6 +206,7 @@ Admin mutations and uploads require authentication; portfolio reads are public. 
 | `server` | `npm run dev` | Start the API with Nodemon |
 | `server` | `npm start` | Start the API with Node.js |
 | `server` | `npm run create-admin` | Create or reset the admin account |
+| `server` | `npm run reset-password` | Interactively reset or update the admin password |
 
 ## Troubleshooting
 

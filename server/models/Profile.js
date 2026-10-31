@@ -54,6 +54,12 @@ const profileSchema = new mongoose.Schema(
       trim: true,
     },
 
+    introAudioUrl: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
     whatsapp: {
       type: String,
       trim: true,

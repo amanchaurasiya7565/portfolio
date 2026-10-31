@@ -14,6 +14,7 @@ export default function AdminDashboard() {
   });
 
   const [projects, setProjects] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -63,6 +64,7 @@ export default function AdminDashboard() {
 
         setProfile(profileData);
         setProjects(projectsData);
+        setMessages(messagesData);
         setStats({
           projects: projectsData.length,
           skills: skillsData.length,
@@ -81,6 +83,33 @@ export default function AdminDashboard() {
 
     loadDashboard();
   }, []);
+
+  const [deletingId, setDeletingId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [msgAlert, setMsgAlert] = useState(null);
+
+  const handleDeleteMessage = async (id) => {
+    try {
+      setDeletingId(id);
+      setMsgAlert(null);
+      await api.delete(`/contact/messages/${id}`);
+      setMessages((prev) => prev.filter((m) => m._id !== id));
+      setStats((prev) => ({
+        ...prev,
+        messages: Math.max(0, prev.messages - 1),
+      }));
+      setConfirmDeleteId(null);
+      setMsgAlert({ type: "success", text: "Message deleted successfully." });
+      setTimeout(() => setMsgAlert(null), 3500);
+    } catch (err) {
+      console.error("Failed to delete message:", err);
+      const errMsg =
+        err.response?.data?.message || err.message || "Failed to delete message.";
+      setMsgAlert({ type: "error", text: errMsg });
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const statCards = [
     {
@@ -127,7 +156,7 @@ export default function AdminDashboard() {
       label: "Contact Inquiries",
       value: stats.messages,
       icon: "✉️",
-      link: "/admin/dashboard",
+      link: "#messages",
       gradient: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
       glow: "rgba(236, 72, 153, 0.2)",
     },
@@ -341,6 +370,171 @@ export default function AdminDashboard() {
                     </Link>
                   </div>
                 ))}
+            </div>
+          )}
+        </div>
+
+        {/* Contact Messages Panel */}
+        <div id="messages" className="admin-panel card-3d" style={{ marginTop: "24px" }}>
+          <div className="admin-panel-header">
+            <div>
+              <h3>📨 Contact Inquiries & Received Messages ({messages.length})</h3>
+              <p>Messages submitted by visitors through your public portfolio contact form.</p>
+            </div>
+          </div>
+
+          {msgAlert && (
+            <div
+              style={{
+                marginTop: "12px",
+                padding: "10px 16px",
+                borderRadius: "10px",
+                background:
+                  msgAlert.type === "success"
+                    ? "rgba(34, 197, 94, 0.15)"
+                    : "rgba(239, 68, 68, 0.15)",
+                color: msgAlert.type === "success" ? "#4ade80" : "#f87171",
+                border: `1px solid ${
+                  msgAlert.type === "success"
+                    ? "rgba(34, 197, 94, 0.3)"
+                    : "rgba(239, 68, 68, 0.3)"
+                }`,
+                fontSize: "13.5px",
+                fontWeight: "500",
+              }}
+            >
+              {msgAlert.text}
+            </div>
+          )}
+
+          {messages.length === 0 ? (
+            <div className="admin-empty-state">
+              <span className="empty-icon">📭</span>
+              <p>No messages received yet.</p>
+              <small>When visitors fill out the Contact form on your portfolio, their messages appear here.</small>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "16px" }}>
+              {messages.map((msg) => (
+                <div
+                  key={msg._id}
+                  style={{
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border-card)",
+                    borderRadius: "14px",
+                    padding: "20px",
+                    transition: "all 0.25s ease",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px", flexWrap: "wrap", marginBottom: "12px" }}>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                        <strong style={{ fontSize: "16px", color: "var(--text-primary)" }}>{msg.name}</strong>
+                        <a
+                          href={`mailto:${msg.email}?subject=Re: ${encodeURIComponent(msg.subject || 'Portfolio Inquiry')}`}
+                          style={{
+                            fontSize: "13px",
+                            color: "var(--accent-light, #818cf8)",
+                            textDecoration: "underline",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                        >
+                          ✉️ {msg.email} ↗
+                        </a>
+                      </div>
+                      <p style={{ margin: "4px 0 0 0", fontSize: "13.5px", fontWeight: "600", color: "var(--text-secondary)" }}>
+                        Subject: <span style={{ fontWeight: "400" }}>{msg.subject || "General Inquiry"}</span>
+                      </p>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                        {msg.createdAt
+                          ? new Date(msg.createdAt).toLocaleDateString(undefined, {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "Recently"}
+                      </span>
+
+                      {confirmDeleteId === msg._id ? (
+                        <div style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}>
+                          <button
+                            type="button"
+                            disabled={deletingId === msg._id}
+                            onClick={() => handleDeleteMessage(msg._id)}
+                            style={{
+                              background: "#ef4444",
+                              border: "none",
+                              color: "#ffffff",
+                              borderRadius: "8px",
+                              padding: "6px 12px",
+                              fontSize: "12px",
+                              fontWeight: "700",
+                              cursor: "pointer",
+                            }}
+                          >
+                            {deletingId === msg._id ? "Deleting..." : "Confirm Delete"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDeleteId(null)}
+                            style={{
+                              background: "rgba(255, 255, 255, 0.08)",
+                              border: "1px solid var(--border-subtle)",
+                              color: "var(--text-secondary)",
+                              borderRadius: "8px",
+                              padding: "6px 10px",
+                              fontSize: "12px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDeleteId(msg._id)}
+                          style={{
+                            background: "rgba(239, 68, 68, 0.12)",
+                            border: "1px solid rgba(239, 68, 68, 0.25)",
+                            color: "#f87171",
+                            borderRadius: "8px",
+                            padding: "6px 12px",
+                            fontSize: "12px",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                          }}
+                        >
+                          🗑️ Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid var(--border-subtle)",
+                      borderRadius: "10px",
+                      padding: "14px 16px",
+                      fontSize: "14.5px",
+                      lineHeight: "1.6",
+                      color: "var(--text-primary)",
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {msg.message}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

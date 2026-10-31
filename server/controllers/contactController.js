@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import nodemailer from "nodemailer";
 import Message from "../models/Message.js";
 import Profile from "../models/Profile.js";
@@ -98,3 +99,21 @@ export const getContactMessages = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch messages", error: error.message });
   }
 };
+
+export const deleteContactMessage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid message ID" });
+    }
+    const deleted = await Message.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Message not found or already deleted" });
+    }
+    return res.json({ success: true, message: "Message deleted successfully", id });
+  } catch (error) {
+    console.error("Failed to delete message:", error);
+    return res.status(500).json({ message: "Failed to delete message", error: error.message });
+  }
+};
+

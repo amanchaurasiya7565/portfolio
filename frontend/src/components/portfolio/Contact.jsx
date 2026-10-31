@@ -35,11 +35,20 @@ export default function Contact({ profile }) {
       });
       setFormData({ name: "", email: "", subject: "", message: "" });
     } catch (err) {
+      // Save offline copy in localStorage so the user's message is preserved
+      try {
+        const saved = JSON.parse(localStorage.getItem("aman_offline_messages") || "[]");
+        saved.push({ ...formData, timestamp: new Date().toISOString() });
+        localStorage.setItem("aman_offline_messages", JSON.stringify(saved));
+      } catch (storageErr) {
+        console.warn("Could not save offline message:", storageErr);
+      }
+
       setFeedback({
         type: "error",
+        isOffline: true,
         message:
-          err.response?.data?.message ||
-          "Failed to send your message. Please try again or reach out directly via email or WhatsApp.",
+          "The backend server is currently offline or sleeping. Don't worry — your message was saved! You can also send it directly via WhatsApp or Email below:",
       });
     } finally {
       setSubmitting(false);
@@ -164,10 +173,40 @@ export default function Contact({ profile }) {
                   }`}
                   role="alert"
                 >
-                  <span className="alert-icon">
-                    {feedback.type === "success" ? "✓" : "⚠"}
-                  </span>
-                  <span>{feedback.message}</span>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                    <span className="alert-icon">
+                      {feedback.type === "success" ? "✓" : "⚡"}
+                    </span>
+                    <div>
+                      <span>{feedback.message}</span>
+                      {feedback.isOffline && (
+                        <div style={{ display: "flex", gap: "10px", marginTop: "10px", flexWrap: "wrap" }}>
+                          <a
+                            href={`https://wa.me/917275523611?text=${encodeURIComponent(
+                              `Hi Aman! Name: ${formData.name}\nEmail: ${formData.email}\nSubject: ${formData.subject}\n\n${formData.message}`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="social-pill whatsapp-pill"
+                            style={{ fontSize: "12px", padding: "6px 12px" }}
+                          >
+                            Send via WhatsApp ↗
+                          </a>
+                          <a
+                            href={`mailto:${profile?.email || "amanchaurasiya7565@gmail.com"}?subject=${encodeURIComponent(
+                              formData.subject || "Portfolio Inquiry"
+                            )}&body=${encodeURIComponent(
+                              `From: ${formData.name} (${formData.email})\n\n${formData.message}`
+                            )}`}
+                            className="social-pill"
+                            style={{ fontSize: "12px", padding: "6px 12px" }}
+                          >
+                            Send via Email ✉️
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 

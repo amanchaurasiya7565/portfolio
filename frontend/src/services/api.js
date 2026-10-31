@@ -18,7 +18,7 @@ const getBaseURL = () => {
 
   return (
     import.meta.env.VITE_API_URL ||
-    "https://portfolio-pocn.onrender.com/api"
+    "https://aman-portfolio-server.vercel.app/api"
   ).replace(/\/+$/, "");
 };
 

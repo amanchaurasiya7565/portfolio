@@ -91,7 +91,7 @@ export default function Navbar() {
         </button>
 
         <button
-          className="menu-button"
+          className={`menu-button ${open ? "menu-open" : ""}`}
           onClick={() => setOpen(!open)}
           aria-label="Toggle navigation"
           aria-expanded={open}

@@ -4,6 +4,17 @@ export default function Resume({ resumeUrl, profile }) {
   const [showModal, setShowModal] = useState(false);
   const [blobUrl, setBlobUrl] = useState(null);
   const [loadingPdf, setLoadingPdf] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device (PDF embed not supported well on mobile)
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Default to provided resumeUrl, profile resumeUrl, or fallback public resume
   const activeUrl = resumeUrl || profile?.resumeUrl || "/resume.pdf";
@@ -86,26 +97,51 @@ export default function Resume({ resumeUrl, profile }) {
               </p>
 
               <div className="resume-actions">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(true)}
-                  className="primary-button resume-btn view-btn"
-                  id="preview-resume-btn"
-                >
-                  <svg
-                    className="btn-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                {isMobile ? (
+                  /* On mobile: open PDF in new tab instead of modal (better UX) */
+                  <a
+                    href={viewEndpoint}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="primary-button resume-btn view-btn"
+                    id="preview-resume-btn"
                   >
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                  <span>Preview Resume</span>
-                </button>
+                    <svg
+                      className="btn-icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <span>View Resume</span>
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(true)}
+                    className="primary-button resume-btn view-btn"
+                    id="preview-resume-btn"
+                  >
+                    <svg
+                      className="btn-icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <span>Preview Resume</span>
+                  </button>
+                )}
 
                 <a
                   href={viewEndpoint}

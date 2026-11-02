@@ -377,6 +377,8 @@ section {
 
 .menu-button {
   display: none;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--border-subtle);
   background: var(--bg-card);
   color: var(--text-primary);
@@ -384,6 +386,17 @@ section {
   border-radius: 10px;
   font-size: 20px;
   cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  line-height: 1;
+  flex-shrink: 0;
+  z-index: 1001;
+  position: relative;
+}
+
+.menu-button.menu-open {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
 }
 
 .navbar nav a {
@@ -3548,29 +3561,52 @@ footer p,
 
 @media (max-width: 768px) {
   section {
-    padding: 70px 5%;
+    padding: 60px 4%;
   }
 
   .navbar {
-    padding: 14px 5%;
+    padding: 12px 4%;
+    gap: 8px;
+  }
+
+  /* Fix: Menu/close button always visible and properly sized */
+  .navbar-side-actions {
+    gap: 8px;
+    margin-left: auto;
+    flex-shrink: 0;
   }
 
   .menu-button {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+    font-size: 18px;
+    padding: 6px 10px;
+    z-index: 1001;
+    position: relative;
+  }
+
+  .theme-toggle-btn {
+    width: 38px;
+    height: 38px;
   }
 
   .navbar nav,
   .navbar .navbar-nav {
     position: absolute;
-    top: 74px;
+    top: 64px;
     left: 0;
     right: 0;
     display: none;
     flex-direction: column;
-    padding: 24px 6%;
+    padding: 16px 5%;
+    gap: 4px;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-subtle);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    z-index: 999;
   }
 
   .navbar nav.nav-open,
@@ -3578,11 +3614,27 @@ footer p,
     display: flex;
   }
 
+  .navbar-nav a,
+  .navbar nav a {
+    padding: 10px 0;
+    font-size: 15px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .navbar-nav a:last-child,
+  .navbar nav a:last-child {
+    border-bottom: none;
+  }
+
   .hero {
     flex-direction: column;
     text-align: center;
-    padding-top: 110px;
-    gap: 40px;
+    padding-top: 95px;
+    gap: 30px;
+  }
+
+  .hero-content {
+    max-width: 100%;
   }
 
   .hero-buttons,
@@ -3590,15 +3642,33 @@ footer p,
     justify-content: center;
   }
 
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-buttons .primary-button,
+  .hero-buttons .secondary-button {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+
+  .social-links {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
   .hero-image-wrapper {
     order: -1;
   }
 
   .hero-image-ring {
-    width: 285px;
-    height: 285px;
-    max-width: 80vw;
-    max-height: 80vw;
+    width: 220px;
+    height: 220px;
+    max-width: 70vw;
+    max-height: 70vw;
   }
 
   .skills-grid,
@@ -3607,6 +3677,118 @@ footer p,
     grid-template-columns: 1fr;
   }
 
+  /* Resume mobile fix */
+  .resume-section {
+    padding: 60px 4%;
+  }
+
+  .resume-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 28px 20px;
+    gap: 24px;
+  }
+
+  .resume-content {
+    max-width: 100%;
+  }
+
+  .resume-actions {
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .resume-btn {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+
+  .resume-visual-preview {
+    display: none;
+  }
+
+  /* Resume modal mobile */
+  .resume-modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .resume-modal-dialog {
+    width: 100%;
+    height: 92vh;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .resume-modal-header {
+    padding: 14px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .modal-title-group h3 {
+    font-size: 15px;
+  }
+
+  .modal-tag {
+    display: none;
+  }
+
+  .resume-modal-actions {
+    gap: 8px;
+  }
+
+  /* Contact mobile */
+  .contact-section {
+    padding: 60px 4%;
+  }
+
+  .contact-form-card {
+    padding: 24px 18px;
+  }
+
+  .contact-info-card {
+    padding: 24px 18px;
+  }
+
+  /* About mobile */
+  .about-heading-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .about-bio-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-info {
+    flex-direction: column;
+  }
+
+  .about-info-item {
+    width: 100%;
+  }
+
+  /* About bio story box */
+  .about-bio-story-box {
+    padding: 22px 18px;
+  }
+
+  /* Timeline mobile */
+  .timeline-item {
+    padding: 22px 18px;
+  }
+
+  .timeline-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* Form group row */
   .form-group-row,
   .admin-form,
   .admin-media-grid {
@@ -4600,14 +4782,15 @@ footer p,
   position: fixed;
   inset: 0;
   z-index: 9995;
-  background: rgba(4, 7, 15, 0.75);
+  background: rgba(4, 7, 15, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 16px;
   animation: aiOverlayFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
 }
 
 @keyframes aiOverlayFadeIn {
@@ -4623,14 +4806,16 @@ footer p,
   position: relative;
   width: 100%;
   max-width: 560px;
-  background: linear-gradient(155deg, rgba(15, 23, 42, 0.94) 0%, rgba(9, 13, 24, 0.98) 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  background: linear-gradient(155deg, rgba(15, 23, 42, 0.96) 0%, rgba(9, 13, 24, 0.99) 100%);
   border: 1px solid rgba(99, 102, 241, 0.35);
   border-radius: 24px;
   padding: 28px;
   box-shadow: 0 30px 70px -15px rgba(99, 102, 241, 0.4),
               0 0 30px rgba(99, 102, 241, 0.15);
   animation: aiCardPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
 }
 
 @keyframes aiCardPop {
@@ -4700,14 +4885,19 @@ footer p,
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-secondary);
+  background: rgba(239, 68, 68, 0.12);
+  border: 1.5px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
 }
 
 .ai-icon-btn:hover,
@@ -4945,25 +5135,28 @@ footer p,
 
 .ai-fab-container {
   position: fixed;
-  bottom: 26px;
-  right: 26px;
+  bottom: 28px;
+  right: 28px;
   z-index: 9992;
+  /* Can be dragged/repositioned via JS; default lower-right */
+  transition: bottom 0.3s ease, right 0.3s ease;
 }
 
 .ai-fab-button {
   position: relative;
-  width: 58px;
-  height: 58px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #c026d3 100%);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #d946ef 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.6),
-              0 0 20px rgba(124, 58, 237, 0.4);
+  box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.65),
+              0 0 20px rgba(217, 70, 239, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -5045,18 +5238,130 @@ footer p,
 }
 
 @media (max-width: 640px) {
-  .ai-action-buttons {
-    grid-template-columns: 1fr;
+  .ai-intro-overlay {
+    padding: 10px;
+    align-items: flex-end;
   }
 
+  .ai-intro-card {
+    padding: 20px 16px;
+    border-radius: 20px 20px 0 0;
+    max-height: 90vh;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .ai-intro-header {
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  /* Ensure close button is prominently visible on mobile */
+  .ai-close-btn {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    background: rgba(239, 68, 68, 0.18) !important;
+    border-color: rgba(239, 68, 68, 0.5) !important;
+    color: #f87171 !important;
+  }
+
+  .ai-status-text {
+    font-size: 9px;
+  }
+
+  .ai-avatar-row {
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .ai-avatar-orb {
+    width: 52px;
+    height: 52px;
+  }
+
+  .ai-orb-core {
+    width: 40px;
+    height: 40px;
+  }
+
+  .ai-title {
+    font-size: 17px;
+  }
+
+  .ai-subtitle {
+    font-size: 12px;
+  }
+
+  .ai-audio-player-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .ai-play-audio-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+  }
+
+  .ai-audio-meta {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .ai-speech-bubble {
+    font-size: 13.5px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+  }
+
+  .ai-action-buttons {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .ai-action-btn {
+    padding: 9px 10px;
+    font-size: 12px;
+  }
+
+  .ai-intro-footer {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ai-dismiss-btn {
+    font-size: 13px;
+    padding: 8px 16px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 20px;
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.08);
+  }
+
+  /* FAB button */
   .ai-fab-container {
     bottom: 20px;
-    right: 20px;
+    right: 18px;
   }
 
   .ai-fab-button {
     width: 52px;
     height: 52px;
+  }
+
+  /* Hide tooltip on small screens */
+  .ai-fab-tooltip {
+    display: none;
   }
 }
 
@@ -5246,3 +5551,69 @@ footer p,
   background: rgba(239, 68, 68, 0.15) !important;
 }
 
+/* ==========================================================================
+   EXTRA SMALL SCREENS (max-width: 480px)
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  .hero-intro {
+    font-size: 26px;
+  }
+
+  .hero-description {
+    font-size: 14.5px;
+  }
+
+  .project-card-media {
+    height: 180px;
+  }
+
+  .project-content {
+    padding: 20px 16px;
+  }
+
+  .section-label {
+    font-size: 20px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    padding: 11px 20px;
+    font-size: 14px;
+  }
+
+  .certification-card,
+  .achievement-card {
+    border-radius: 16px;
+  }
+
+  .certifications-section,
+  .achievements-section {
+    padding: 60px 4%;
+  }
+
+  .cert-card-content,
+  .achievement-card-content {
+    padding: 18px 16px;
+  }
+
+  .resume-btn {
+    font-size: 13.5px;
+    padding: 11px 18px;
+  }
+
+  .social-pill {
+    padding: 6px 12px;
+    font-size: 12.5px;
+  }
+
+  .contact-channel-item {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .channel-icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+}

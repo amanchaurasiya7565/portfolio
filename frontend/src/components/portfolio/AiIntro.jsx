@@ -378,22 +378,18 @@ export default function AiIntro({ profile }) {
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             ) : (
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="11" width="18" height="10" rx="4" />
-                <circle cx="8.5" cy="16" r="1.5" fill="currentColor" />
-                <circle cx="15.5" cy="16" r="1.5" fill="currentColor" />
-                <path d="M9 20h6" />
-                <path d="M12 2v5" />
-                <circle cx="12" cy="2" r="1.5" fill="currentColor" />
-                <line x1="2" y1="16" x2="3" y2="16" />
-                <line x1="21" y1="16" x2="22" y2="16" />
+              /* Sparkle/Stars AI icon - modern and distinct */
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" stroke="none">
+                <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z" opacity="0.9"/>
+                <path d="M19 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z" opacity="0.75" transform="scale(0.7) translate(12, 12)"/>
+                <path d="M5 16l0.8 2.2 2.2 0.8-2.2 0.8L5 22l-0.8-2.2L2 19l2.2-0.8L5 16z" opacity="0.7"/>
               </svg>
             )}
           </div>
 
           {/* Tooltip Pill */}
           <span className="ai-fab-tooltip">
-            {isOpen ? "Close AI Intro" : "AI Assistant ✨"}
+            {isOpen ? "Close Guide" : "✨ AI Guide"}
           </span>
         </button>
       </div>

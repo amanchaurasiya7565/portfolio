@@ -116,17 +116,24 @@ export const defaultExperience = [];
 export const defaultAchievements = [];
 export const defaultCertifications = [];
 
-const CACHE_KEY = "aman_portfolio_cached_data_v3";
+const CACHE_KEY = "aman_portfolio_cached_data_v5";
 
 /**
  * Retrieve cached data or Aman's real default data
  */
 export function getInitialPortfolioData() {
   try {
+    // Clear legacy cache keys from previous deployments
+    if (typeof localStorage !== "undefined") {
+      ["aman_portfolio_cached_data_v1", "aman_portfolio_cached_data_v2", "aman_portfolio_cached_data_v3", "aman_portfolio_cached_data_v4"].forEach((k) => {
+        try { localStorage.removeItem(k); } catch (e) {}
+      });
+    }
+
     const raw = localStorage.getItem(CACHE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && parsed.profile) {
+      if (parsed && parsed.profile && parsed.skills?.some((s) => s.image)) {
         return {
           ...parsed,
           isOffline: false,

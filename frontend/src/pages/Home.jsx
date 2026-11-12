@@ -111,29 +111,6 @@ export default function Home() {
       {/* Micro-Interactive 3D Cards Controller */}
       <Card3DEffect />
 
-      {/* Offline Status Pill / Indicator */}
-      {isOffline && (
-        <aside
-          className="offline-status-pill"
-          role="status"
-          aria-live="polite"
-        >
-          <span className="offline-dot" />
-          <span className="offline-text">
-            Server Standby • Viewing Cached Portfolio
-          </span>
-          <button
-            type="button"
-            onClick={() => fetchLivePortfolio(true)}
-            className="offline-retry-btn"
-            disabled={isSyncing}
-            title="Retry connecting to live server"
-          >
-            {isSyncing ? "Syncing..." : "↻ Retry Sync"}
-          </button>
-        </aside>
-      )}
-
       {/* Main Navigation Bar */}
       <Navbar />
 

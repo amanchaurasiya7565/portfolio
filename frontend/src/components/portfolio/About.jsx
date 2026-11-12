@@ -3,7 +3,6 @@ import { getWhatsappUrl } from "../../utils/whatsapp";
 
 export default function About({ profile }) {
   const [viewMode, setViewMode] = useState("cards"); // "cards" | "story"
-  const [copied, setCopied] = useState(false);
   const [activeCard, setActiveCard] = useState(null);
 
   const rawWhatsapp = profile?.whatsapp || profile?.phone;
@@ -65,13 +64,6 @@ export default function About({ profile }) {
     return lines.map((line, idx) => parseLine(line, idx));
   }, [profile?.bio]);
 
-  const handleCopyBio = () => {
-    if (!profile?.bio) return;
-    navigator.clipboard.writeText(profile.bio);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2200);
-  };
-
   return (
     <section id="about" className="about-section">
       <div className="section-container">
@@ -104,16 +96,6 @@ export default function About({ profile }) {
                   <span>📄 Narrative</span>
                 </button>
               </div>
-
-              <button
-                type="button"
-                className="about-copy-btn"
-                onClick={handleCopyBio}
-                title="Copy complete bio"
-                aria-label="Copy bio to clipboard"
-              >
-                {copied ? "✓ Copied!" : "📋 Copy"}
-              </button>
             </div>
           )}
         </div>
@@ -178,10 +160,14 @@ export default function About({ profile }) {
           )}
 
           {profile?.email && (
-            <div className="about-info-item card-3d">
+            <div className="about-info-item card-3d email-info-item">
               <span className="info-icon">✉️</span>
               <strong>Email</strong>
-              <a href={`mailto:${profile.email}`} className="info-value info-link">
+              <a
+                href={`mailto:${profile.email}`}
+                className="info-value info-link email-value"
+                title={`Send email to ${profile.email}`}
+              >
                 {profile.email}
               </a>
             </div>

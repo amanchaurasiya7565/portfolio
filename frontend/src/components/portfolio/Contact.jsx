@@ -124,7 +124,9 @@ export default function Contact({ profile }) {
                   </div>
                   <div className="channel-text">
                     <span className="channel-label">Email</span>
-                    <strong className="channel-value">{profile.email}</strong>
+                    <strong className="channel-value email-value" title={`Send email to ${profile.email}`}>
+                      {profile.email}
+                    </strong>
                     <span className="channel-hint">Write anytime</span>
                   </div>
                   <span className="channel-arrow">→</span>

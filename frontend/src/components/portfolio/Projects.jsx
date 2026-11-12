@@ -22,6 +22,20 @@ export default function Projects({ projects = [] }) {
     setSelectedProject(null);
   };
 
+  useEffect(() => {
+    if (selectedProject) {
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (e) => {
+        if (e.key === "Escape") closeProjectModal();
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [selectedProject]);
+
   return (
     <section id="projects" className="projects-section">
       <div className="section-container">
@@ -206,11 +220,22 @@ export default function Projects({ projects = [] }) {
           aria-modal="true"
           aria-label={`${selectedProject.title} Full Details`}
         >
+          {/* Prominent Floating Close Button always on top of navbar and card */}
+          <button
+            type="button"
+            className="project-popup-floating-close-btn"
+            onClick={closeProjectModal}
+            aria-label="Close project modal"
+            title="Close (Esc)"
+          >
+            ✕
+          </button>
+
           <div
             className="project-popup-card"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button */}
+            {/* Corner Close button inside card */}
             <button
               type="button"
               className="project-popup-close-btn"
@@ -334,6 +359,15 @@ export default function Projects({ projects = [] }) {
                     <span>↗</span>
                   </a>
                 )}
+
+                {/* Bottom Close Button for easy mobile touch access */}
+                <button
+                  type="button"
+                  onClick={closeProjectModal}
+                  className="project-popup-bottom-close-btn"
+                >
+                  ✕ Close Details
+                </button>
               </div>
             </div>
           </div>

@@ -14,6 +14,12 @@ const skillSchema = new mongoose.Schema(
       trim: true,
     },
 
+    image: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
     level: {
       type: Number,
       min: 0,

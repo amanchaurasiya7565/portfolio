@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import ImageUploader from "../../components/admin/ImageUploader";
 
 const CATEGORIES = [
   "Programming",
@@ -14,6 +15,7 @@ const CATEGORIES = [
 const initialForm = {
   category: "Programming",
   name: "",
+  image: "",
   level: 80,
   order: 0,
 };
@@ -96,6 +98,7 @@ export default function SkillsManager() {
     setForm({
       category: skill.category,
       name: skill.name,
+      image: skill.image || "",
       level: skill.level ?? 75,
       order: skill.order ?? 0,
     });
@@ -229,6 +232,15 @@ export default function SkillsManager() {
             </select>
           </div>
 
+          {/* Skill Image / Icon Uploader */}
+          <div className="admin-form-group full-width">
+            <ImageUploader
+              label="Skill Logo / Icon Image (Optional)"
+              value={form.image}
+              onChange={(url) => setForm((prev) => ({ ...prev, image: url }))}
+            />
+          </div>
+
           {/* Proficiency Level with Slider & Animated Bar */}
           <div className="admin-form-group full-width">
             <div className="level-label-row">
@@ -351,11 +363,45 @@ export default function SkillsManager() {
             {filteredSkills.map((skill) => (
               <div key={skill._id} className="skill-item-card card-3d">
                 <div className="skill-card-top">
-                  <div>
-                    <span className="skill-category-tag">
-                      {skill.category}
-                    </span>
-                    <h3 className="skill-card-name">{skill.name}</h3>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    {skill.image ? (
+                      <img
+                        src={skill.image}
+                        alt={skill.name}
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          border: "1.5px solid var(--accent)",
+                          background: "var(--bg-card)",
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          borderRadius: "50%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "13px",
+                          fontWeight: 700,
+                          background: "var(--card-glow)",
+                          color: "var(--accent-light)",
+                          border: "1px solid var(--border-subtle)",
+                        }}
+                      >
+                        {skill.name.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <span className="skill-category-tag">
+                        {skill.category}
+                      </span>
+                      <h3 className="skill-card-name">{skill.name}</h3>
+                    </div>
                   </div>
 
                   <span className="skill-level-pill">{skill.level}%</span>

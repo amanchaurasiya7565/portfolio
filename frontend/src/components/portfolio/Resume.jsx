@@ -6,7 +6,20 @@ export default function Resume({ resumeUrl, profile }) {
   const [loadingPdf, setLoadingPdf] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detect mobile device (PDF embed not supported well on mobile)
+  // Reliable PDF URLs: prioritize local /resume.pdf if remote backend is not available
+  const staticPdfUrl = "/resume.pdf";
+  const candidateName = profile?.name || "Aman Chaurasiya";
+
+  const reliableResumeUrl =
+    (profile?.resumeUrl && profile.resumeUrl.startsWith("http") && !profile.resumeUrl.includes("localhost"))
+      ? profile.resumeUrl
+      : (resumeUrl && resumeUrl.startsWith("http") && !resumeUrl.includes("localhost") ? resumeUrl : staticPdfUrl);
+
+  const apiBase = import.meta.env.VITE_API_URL || "";
+  const serverViewEndpoint = apiBase && !apiBase.includes("localhost") ? `${apiBase}/resume/view` : reliableResumeUrl;
+  const serverDownloadEndpoint = apiBase && !apiBase.includes("localhost") ? `${apiBase}/resume/download` : reliableResumeUrl;
+
+  // Detect mobile device
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
@@ -16,13 +29,6 @@ export default function Resume({ resumeUrl, profile }) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Default to provided resumeUrl, profile resumeUrl, or fallback public resume
-  const activeUrl = resumeUrl || profile?.resumeUrl || "/resume.pdf";
-  const candidateName = profile?.name || "Aman Chaurasiya";
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-  const viewEndpoint = `${apiBase}/resume/view`;
-  const downloadEndpoint = `${apiBase}/resume/download`;
-
   useEffect(() => {
     let createdUrl = null;
 
@@ -30,9 +36,9 @@ export default function Resume({ resumeUrl, profile }) {
       setLoadingPdf(true);
 
       const candidateSources = [
-        viewEndpoint,
-        activeUrl,
-        "/resume.pdf",
+        reliableResumeUrl,
+        staticPdfUrl,
+        serverViewEndpoint,
       ].filter(Boolean);
 
       const fetchAndSetBlob = async () => {
@@ -54,8 +60,8 @@ export default function Resume({ resumeUrl, profile }) {
           }
         }
 
-        // If fetch failed, fallback directly to activeUrl or viewEndpoint
-        setBlobUrl(activeUrl || viewEndpoint);
+        // Direct fallback to reliable public PDF
+        setBlobUrl(reliableResumeUrl);
         setLoadingPdf(false);
       };
 
@@ -74,7 +80,7 @@ export default function Resume({ resumeUrl, profile }) {
         URL.revokeObjectURL(createdUrl);
       }
     };
-  }, [showModal, activeUrl, viewEndpoint]);
+  }, [showModal, reliableResumeUrl, staticPdfUrl, serverViewEndpoint]);
 
   return (
     <>
@@ -97,59 +103,35 @@ export default function Resume({ resumeUrl, profile }) {
               </p>
 
               <div className="resume-actions">
-                {isMobile ? (
-                  /* On mobile: open PDF in new tab instead of modal (better UX) */
-                  <a
-                    href={viewEndpoint}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="primary-button resume-btn view-btn"
-                    id="preview-resume-btn"
+                <button
+                  type="button"
+                  onClick={() => setShowModal(true)}
+                  className="primary-button resume-btn view-btn"
+                  id="preview-resume-btn"
+                  title="Open in-depth resume preview"
+                >
+                  <svg
+                    className="btn-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    <svg
-                      className="btn-icon"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                    <span>View Resume</span>
-                  </a>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(true)}
-                    className="primary-button resume-btn view-btn"
-                    id="preview-resume-btn"
-                  >
-                    <svg
-                      className="btn-icon"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                    <span>Preview Resume</span>
-                  </button>
-                )}
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <span>Preview Resume</span>
+                </button>
 
                 <a
-                  href={viewEndpoint}
+                  href={reliableResumeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="secondary-button resume-btn tab-btn"
                   id="tab-resume-btn"
-                  title="Open PDF in a new browser tab"
+                  title="Open PDF directly in a new browser tab"
                 >
                   <svg
                     className="btn-icon"
@@ -168,12 +150,11 @@ export default function Resume({ resumeUrl, profile }) {
                 </a>
 
                 <a
-                  href={downloadEndpoint}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={reliableResumeUrl}
                   download="Aman_Chaurasiya_Resume.pdf"
                   className="secondary-button resume-btn download-btn"
                   id="download-resume-btn"
+                  title="Download offline copy"
                 >
                   <svg
                     className="btn-icon"
@@ -228,7 +209,7 @@ export default function Resume({ resumeUrl, profile }) {
 
               <div className="resume-modal-actions">
                 <a
-                  href={viewEndpoint}
+                  href={reliableResumeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="modal-action-btn"
@@ -250,9 +231,7 @@ export default function Resume({ resumeUrl, profile }) {
                 </a>
 
                 <a
-                  href={downloadEndpoint}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={reliableResumeUrl}
                   download="Aman_Chaurasiya_Resume.pdf"
                   className="modal-action-btn modal-download-btn"
                   title="Download copy"
@@ -289,6 +268,69 @@ export default function Resume({ resumeUrl, profile }) {
                   <div className="spinner" />
                   <p>Loading document preview...</p>
                 </div>
+              ) : isMobile ? (
+                /* Mobile optimized PDF preview experience */
+                <div className="mobile-resume-preview-card">
+                  <div className="mobile-resume-icon-badge">
+                    <span className="pdf-doc-emoji">📄</span>
+                  </div>
+                  <h4>{candidateName}</h4>
+                  <p className="mobile-resume-doc-name">Aman_Chaurasiya_Resume.pdf</p>
+                  <span className="mobile-resume-tag">Official PDF Curriculum Vitae</span>
+
+                  <div className="mobile-resume-button-stack">
+                    <a
+                      href={reliableResumeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="primary-button mobile-open-pdf-btn"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                      <span>Open Fullscreen in Browser</span>
+                    </a>
+
+                    <a
+                      href={reliableResumeUrl}
+                      download="Aman_Chaurasiya_Resume.pdf"
+                      className="secondary-button mobile-download-pdf-btn"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                      <span>Download PDF Copy</span>
+                    </a>
+                  </div>
+
+                  {/* Fallback iframe viewer */}
+                  <iframe
+                    src={blobUrl || reliableResumeUrl}
+                    title={`${candidateName} Resume Mobile Viewer`}
+                    className="mobile-resume-iframe"
+                  />
+                </div>
               ) : blobUrl ? (
                 <object
                   data={blobUrl}
@@ -304,7 +346,7 @@ export default function Resume({ resumeUrl, profile }) {
                       <p>Unable to display PDF preview directly inside this browser view.</p>
                       <div className="pdf-fallback-actions">
                         <a
-                          href={blobUrl}
+                          href={reliableResumeUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="primary-button"
@@ -312,7 +354,7 @@ export default function Resume({ resumeUrl, profile }) {
                           Open Document Directly
                         </a>
                         <a
-                          href={downloadEndpoint}
+                          href={reliableResumeUrl}
                           className="secondary-button"
                           download="Aman_Chaurasiya_Resume.pdf"
                         >
@@ -324,18 +366,18 @@ export default function Resume({ resumeUrl, profile }) {
                 </object>
               ) : (
                 <div className="pdf-fallback-container">
-                  <p>Unable to load PDF document.</p>
+                  <p>Document ready for inspection.</p>
                   <div className="pdf-fallback-actions">
                     <a
-                      href={viewEndpoint}
+                      href={reliableResumeUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="primary-button"
                     >
-                      Try Opening Fullscreen
+                      Open Fullscreen
                     </a>
                     <a
-                      href={downloadEndpoint}
+                      href={reliableResumeUrl}
                       className="secondary-button"
                       download="Aman_Chaurasiya_Resume.pdf"
                     >
